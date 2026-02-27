@@ -446,7 +446,20 @@ app.get('/health', (req, res) => {
 
 
 
+// --- END OF FUNCTIONS ---
+
+// 1. The Heartbeat (Health Check)
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: "Commander, we are Online",
+        uptime: process.uptime(),
+        database: "Connected",
+        timestamp: new Date().toISOString()
+    });
+});
+
+// 2. The Engine Start
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Commander, engine running on port ${PORT}`);
+    console.log(`🚀 Mission Control live on port ${PORT}`);
 });
