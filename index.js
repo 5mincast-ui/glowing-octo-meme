@@ -1,27 +1,23 @@
-const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
+const express = require('express');
+const { Pool } = require('pg');
+const app = express();
+app.use(express.json());
 
-app.post('/transfer', async (req, res) => {
-    const { amount, recipientAccount, bankCode } = req.body;
-
-    try {
-        // 1. Create a "Transfer Recipient" (Registering the person's bank info)
-        const recipient = await paystack.transfer_recipient.create({
-            type: "nuban",
-            name: "Recipient Name",
-            account_number: recipientAccount,
-            bank_code: bankCode, // e.g., '058' for GTBank
-            currency: "NGN"
-        });
-
-        // 2. Initiate the Transfer (Actually moving the money)
-        const transfer = await paystack.transfer.create({
-            source: "balance", // Money comes from your Paystack wallet
-            amount: amount * 100, // Paystack uses Kobo (1000 Naira = 100000)
-            recipient: recipient.data.recipient_code
-        });
-
-        res.send(`Success! Real transfer initiated: ${transfer.data.reference}`);
-    } catch (error) {
-        res.status(500).send("Transfer Failed: " + error.message);
-    }
+// 1. Database Pipe
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
+
+// 2. The "Pre-Flight" Check
+app.get('/', async (req, res) => {
+  try {
+    const dbTest = await pool.query('SELECT NOW()');
+    res.send("🚀 High-Notch Playground is LIVE! Database connected at: " + dbTest.rows[0].now);
+  } catch (err) {
+    res.status(500).send("❌ Engine Error: Database connection failed.");
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Commander Center active on port ${PORT}`));
