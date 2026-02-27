@@ -1,23 +1,22 @@
-const express = require('express');
-const { Pool } = require('pg');
-const app = express();
-app.use(express.json());
+app.get('/trigger-test-smile', async (req, res) => {
+    const { pin } = req.query; // We pass the pin in the URL for this test
 
-// 1. Database Pipe
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+    if (pin !== process.env.CHIEF_COMMANDER_PIN) {
+        return res.status(403).send("❌ Access Denied: Chief Commander PIN required.");
+    }
+
+    try {
+        const response = await axios.post('https://api.paystack.co/transfer', {
+            source: "balance",
+            amount: 25000 * 100, // Testing with ₦25,000 for food
+            recipient: "YOUR_RCP_CODE_HERE", // Paste the code from Paystack dashboard
+            reason: "Project Dioscuri - Feeding Test"
+        }, {
+            headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
+        });
+
+        res.send(`🚀 SUCCESS! Paystack says: ${response.data.message}. Smile Simulated!`);
+    } catch (error) {
+        res.status(500).send("❌ Handshake Failed: " + (error.response?.data?.message || error.message));
+    }
 });
-
-// 2. The "Pre-Flight" Check
-app.get('/', async (req, res) => {
-  try {
-    const dbTest = await pool.query('SELECT NOW()');
-    res.send("🚀 High-Notch Playground is LIVE! Database connected at: " + dbTest.rows[0].now);
-  } catch (err) {
-    res.status(500).send("❌ Engine Error: Database connection failed.");
-  }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Commander Center active on port ${PORT}`));
