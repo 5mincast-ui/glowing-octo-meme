@@ -187,6 +187,22 @@ app.listen(PORT, () => console.log(`Commander Center active on port ${PORT}`));
 
 
 
+// Security: Only YOU can release the funds
+app.post('/commander-release', async (req, res) => {
+    const { secret_pin, dreamer_id } = req.body;
+
+    if (secret_pin === process.env.CHIEF_COMMANDER_PIN) {
+        // Trigger DIRECT payment to the recipient
+        await sendDirectPayment(dreamer_id);
+        res.send("Target hit: Funds delivered directly.");
+    } else {
+        res.status(403).send("ALERT: Intrusion detected.");
+    }
+});
+
+
+
+
 <div class="card">
     <h2>Commander Transfer Panel</h2>
     
