@@ -96,6 +96,57 @@ app.post('/release-smile', async (req, res) => {
 });
 
 
+const axios = require('axios'); // Add this to your dependencies later
+
+app.post('/test-transfer', async (req, res) => {
+    const { pin, account_number, bank_code } = req.body;
+
+    // Security Gate
+    if (pin !== process.env.CHIEF_COMMANDER_PIN) {
+        return res.status(403).send("Access Denied: Invalid PIN");
+    }
+
+    try {
+        // This is the call to the Paystack Test environment
+        const response = await axios.post('https://api.paystack.co/transfer', {
+            source: "balance",
+            amount: 150000 * 100, // ₦150,000 in kobo
+            recipient: "RCP_xxxxxxxx", // You'll create this in the dashboard
+            reason: "Startup Seed - Project Dioscuri"
+        }, {
+            headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
+        });
+
+        res.send("🚀 Test Success! Smile simulated without spending real money.");
+    } catch (error) {
+        res.status(500).send("❌ Test Failed: " + error.message);
+    }
+});
+
+
+app.get('/trigger-test-smile', async (req, res) => {
+    const { pin } = req.query; // We pass the pin in the URL for this test
+
+    if (pin !== process.env.CHIEF_COMMANDER_PIN) {
+        return res.status(403).send("❌ Access Denied: Chief Commander PIN required.");
+    }
+
+    try {
+        const response = await axios.post('https://api.paystack.co/transfer', {
+            source: "balance",
+            amount: 25000 * 100, // Testing with ₦25,000 for food
+            recipient: "YOUR_RCP_CODE_HERE", // Paste the code from Paystack dashboard
+            reason: "Project Dioscuri - Feeding Test"
+        }, {
+            headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
+        });
+
+        res.send(`🚀 SUCCESS! Paystack says: ${response.data.message}. Smile Simulated!`);
+    } catch (error) {
+        res.status(500).send("❌ Handshake Failed: " + (error.response?.data?.message || error.message));
+    }
+});
+
 
 
 
