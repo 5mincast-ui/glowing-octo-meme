@@ -223,8 +223,6 @@ app.post('/transfer', async (req, res) => {
     }
 });
 
-    
-const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
 
 app.post('/fund-vault', async (req, res) => {
     const { amount, email } = req.body; // Amount to move into Raenest
