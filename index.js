@@ -17,6 +17,29 @@ const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
 app.get('/', async (req, res) => {
     res.send("🚀 High-Notch Playground is LIVE!");
 });
+// --- MISSION LOGIC: FUND VAULT ---
+app.post('/fund-vault', async (req, res) => {
+    const { amount, email } = req.body;
+
+    try {
+        // Initialize Paystack Transaction
+        const transaction = await paystack.transaction.initialize({
+            amount: amount * 100, // Converts Naira to Kobo
+            email: email,
+            callback_url: "https://glowing-octo-meme-production.up.railway.app/health" 
+        });
+
+        // Send the payment link back to the user
+        res.json({
+            status: "Success",
+            message: "Redirecting to Secure Vault",
+            authorization_url: transaction.data.authorization_url
+        });
+    } catch (error) {
+        console.error("Vault Funding Error:", error);
+        res.status(500).json({ status: "Error", message: "Vault Access Denied" });
+    }
+});
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: "Commander, we are Online", database: "Connected" });
