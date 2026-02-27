@@ -443,14 +443,6 @@ async function emergencyTransfer() {
 
 
 
-<hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-<label>Need to Fund the Vault?</label>
-<button onclick="window.open('YOUR_STRIPE_PRODUCT_LINK', '_blank')" style="background: #635bff;">
-    Fund via Stripe (USD)
-</button>
-
-
-
 
 
 app.get('/health', (req, res) => {
