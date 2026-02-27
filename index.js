@@ -244,6 +244,26 @@ app.post('/transfer', async (req, res) => {
 npm install paystack-api
 
     
+const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
+
+app.post('/fund-vault', async (req, res) => {
+    const { amount, email } = req.body; // Amount to move into Raenest
+
+    try {
+        const transaction = await paystack.transaction.initialize({
+            amount: amount * 100, // Amount in Kobo
+            email: email,         // Your email
+            callback_url: "https://your-app.railway.app/verify" 
+        });
+
+        // This link is where you "pay" to move money into your Raenest-linked vault
+        res.redirect(transaction.data.authorization_url);
+    } catch (error) {
+        res.status(500).send("Funding Error: " + error.message);
+    }
+});
+
+
 
 
 <div class="card">
