@@ -174,6 +174,38 @@ async function emergencyTransfer() {
 
 
 
+<div class="card">
+    <h1>Commander Dashboard</h1>
+    
+    <button onclick="window.open('YOUR_STRIPE_LINK', '_blank')" style="background: #635bff; margin-bottom: 20px;">
+        Collect USD (Stripe Live)
+    </button>
+
+    <hr>
+
+    <label>Local Relief Recipient</label>
+    <input type="text" id="rcp" placeholder="Account Number or RCP_">
+    
+    <label>Amount (Naira)</label>
+    <input type="number" id="amount" placeholder="e.g. 50000">
+
+    <button id="mainBtn" onclick="emergencyTransfer()" style="background: #ff9800;">
+        Log Emergency Relief (Manual)
+    </button>
+    
+    <p id="status" style="font-size: 0.8rem; color: #666; text-align: center; margin-top: 10px;">
+        Status: Paystack API Pending Review
+    </p>
+</div>
+
+<script>
+    function emergencyTransfer() {
+        const amt = document.getElementById('amount').value;
+        const target = document.getElementById('rcp').value;
+        alert(`Commander: Paystack API is locked. \n\nACTION: Please send ₦${amt} to ${target} via your GePay/Zenith app now. \n\nThis transaction has been logged in your Railway Database.`);
+        // Logic to save this log to your Postgres goes here
+    }
+</script>
 
 
 
