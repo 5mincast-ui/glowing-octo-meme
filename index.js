@@ -107,6 +107,36 @@ app.post('/create-recipient', async (req, res) => {
 
 
 
+app.post('/link-bank', async (req, res) => {
+    const { account_number, bank_code, name } = req.body;
+
+    try {
+        const response = await axios.post('https://api.paystack.co/transferrecipient', {
+            type: "nuban",
+            name: name,
+            account_number: account_number,
+            bank_code: bank_code, // e.g., 058 for GTB, 011 for First Bank
+            currency: "NGN"
+        }, {
+            headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
+        });
+
+        const recipientCode = response.data.data.recipient_code;
+        res.send(`✅ Bank Linked! Your Recipient Code is: ${recipientCode}. Save this!`);
+    } catch (error) {
+        res.status(500).send("❌ Link Failed: " + error.response.data.message);
+    }
+});
+
+
+
+
+
+
+
+
+
+
 
 
 
