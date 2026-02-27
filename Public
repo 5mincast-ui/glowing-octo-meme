@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dioscuri Commander Dashboard</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h1 { color: #1a1a1a; font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #555; }
+        input { width: 100%; padding: 0.75rem; margin-bottom: 1.25rem; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 1rem; background: #00c853; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: #00a844; }
+        #status { margin-top: 1rem; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Share a Smile</h1>
+        <label>Recipient Code (RCP_...)</label>
+        <input type="text" id="rcp" placeholder="RCP_xxxxxxxx">
+        
+        <label>Amount (Naira)</label>
+        <input type="number" id="amount" placeholder="e.g. 50000">
+        
+        <label>Commander PIN</label>
+        <input type="password" id="pin" placeholder="Enter 6-digit PIN">
+        
+        <button onclick="releaseSmile()">Release Relief</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function releaseSmile() {
+            const status = document.getElementById('status');
+            status.innerText = "Processing...";
+            
+            const payload = {
+                pin: document.getElementById('pin').value,
+                recipientCode: document.getElementById('rcp').value,
+                amountInNaira: document.getElementById('amount').value,
+                reason: "Project Dioscuri Relief"
+            };
+
+            try {
+                const response = await fetch('/release-smile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                status.innerText = result.message || result.error;
+                status.style.color = response.ok ? "green" : "red";
+            } catch (err) {
+                status.innerText = "Connection Failed";
+                status.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+
