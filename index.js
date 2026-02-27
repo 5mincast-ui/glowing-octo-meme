@@ -130,9 +130,47 @@ app.post('/link-bank', async (req, res) => {
 
 
 
+app.post('/log-manual-relief', async (req, res) => {
+    const { pin, amount, recipient, reason } = req.body;
+
+    if (pin !== process.env.CHIEF_COMMANDER_PIN) {
+        return res.status(403).json({ error: "Invalid PIN" });
+    }
+
+    try {
+        const query = 'INSERT INTO relief_logs (amount, recipient_info, reason, method) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = [amount, recipient, reason, 'Manual_Emergency'];
+        const result = await pool.query(query, values);
+
+        res.json({ 
+            status: "Success", 
+            message: "Manual relief logged in database.", 
+            entry: result.rows[0] 
+        });
+    } catch (err) {
+        res.status(500).json({ error: "Database Log Failed", details: err.message });
+    }
+});
 
 
 
+async function emergencyTransfer() {
+    const payload = {
+        pin: document.getElementById('pin').value,
+        amount: document.getElementById('amount').value,
+        recipient: document.getElementById('rcp').value,
+        reason: "Household Food Supply - Emergency"
+    };
+
+    const response = await fetch('/log-manual-relief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+    
+    const result = await response.json();
+    alert(result.message);
+}
 
 
 
