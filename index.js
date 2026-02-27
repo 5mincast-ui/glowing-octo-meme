@@ -243,53 +243,6 @@ app.post('/fund-vault', async (req, res) => {
 
 
 
-
-<div class="card">
-    <h2>Commander Transfer Panel</h2>
-    
-    <label>Bank</label>
-    <select id="bank_code">
-        <option value="058">GTBank</option>
-        <option value="057">Zenith Bank</option>
-        <option value="999992">OPay</option>
-        <option value="011">First Bank</option>
-    </select>
-
-    <label>Account Number</label>
-    <input type="text" id="account_num" placeholder="0123456789">
-    
-    <button onclick="verifyAccount()" style="background: #2196F3;">Verify Account Name</button>
-    <p id="account_display" style="color: blue; font-weight: bold;"></p>
-
-    <hr>
-
-    <label>Amount (Naira)</label>
-    <input type="number" id="amount" placeholder="50000">
-    
-    <button onclick="executeTransfer()" style="background: #00c853;">🚀 Execute Live Transfer</button>
-</div>
-
-<script>
-    let currentRecipient = "";
-
-    async function verifyAccount() {
-        const payload = {
-            account_number: document.getElementById('account_num').value,
-            bank_code: document.getElementById('bank_code').value
-        };
-        const res = await fetch('/verify-bank', { method: 'POST', body: JSON.stringify(payload), headers: {'Content-Type': 'application/json'} });
-        const data = await res.json();
-        if(data.account_name) {
-            document.getElementById('account_display').innerText = "Verified: " + data.account_name;
-            // Now create the recipient automatically
-            const recRes = await fetch('/create-recipient', { method: 'POST', body: JSON.stringify({...payload, name: data.account_name}), headers: {'Content-Type': 'application/json'} });
-            const recData = await recRes.json();
-            currentRecipient = recData.recipient_code;
-        }
-    }
-</script>
-
-
 const crypto = require('crypto');
 
 // This is the secret "Handshake" receiver
