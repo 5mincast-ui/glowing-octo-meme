@@ -181,11 +181,6 @@ app.get('/', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Commander Center active on port ${PORT}`));
-
-
-
 // Security: Only YOU can release the funds
 app.post('/commander-release', async (req, res) => {
     const { secret_pin, dreamer_id } = req.body;
@@ -227,9 +222,6 @@ app.post('/transfer', async (req, res) => {
         res.status(500).send("Transfer Failed: " + error.message);
     }
 });
-
-
-npm install paystack-api
 
     
 const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
