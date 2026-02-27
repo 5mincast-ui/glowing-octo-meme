@@ -20,3 +20,18 @@ app.get('/trigger-test-smile', async (req, res) => {
         res.status(500).send("❌ Handshake Failed: " + (error.response?.data?.message || error.message));
     }
 });
+
+
+
+
+
+
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: "Commander, we are Online",
+        uptime: process.uptime(),
+        database: "Connected",
+        timestamp: new Date().toISOString()
+    });
+});
+
