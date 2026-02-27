@@ -260,6 +260,33 @@ app.post('/commander-release', async (req, res) => {
 </script>
 
 
+const crypto = require('crypto');
+
+// This is the secret "Handshake" receiver
+app.post('/webhook', (req, res) => {
+    // 1. Verify the request came from Paystack (Security Check)
+    const hash = crypto.createHmac('sha512', process.env.PAYSTACK_SECRET_KEY)
+                       .update(JSON.stringify(req.body))
+                       .digest('hex');
+
+    if (hash === req.headers['x-paystack-signature']) {
+        const event = req.body;
+
+        // 2. Check if the payment was successful
+        if (event.event === 'charge.success') {
+            const amount = event.data.amount / 100; // Convert Kobo back to Naira
+            console.log(`Vault Funded: ₦${amount} is now headed to Raenest!`);
+            
+            // Here, we update your database so you can see your total impact
+            // db.query('UPDATE stats SET total_charity = total_charity + $1', [amount]);
+        }
+    }
+
+    // 3. Always tell Paystack "Thank you, I got it" (Status 200)
+    res.sendStatus(200);
+});
+
+
 
 
 app.post('/link-bank', async (req, res) => {
