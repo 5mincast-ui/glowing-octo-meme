@@ -185,18 +185,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Commander Center active on port ${PORT}`));
 
 
-CREATE TABLE beneficiaries (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100),
-    location VARCHAR(100), -- This will track the 7 US States or Nigerian cities
-    dream_description TEXT,
-    category VARCHAR(20), -- 'FEEDING' or 'STARTUP'
-    payout_details VARCHAR(255),
-    status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'funded', or 'declined'
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-
 
 // Security: Only YOU can release the funds
 app.post('/commander-release', async (req, res) => {
