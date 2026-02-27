@@ -56,6 +56,46 @@ app.post('/create-recipient', async (req, res) => {
 });
 
 
+// The Real "Giving Hand" Logic
+app.post('/release-smile', async (req, res) => {
+    const { pin, recipientCode, amountInNaira, reason } = req.body;
+
+    // 1. Security Check: The Admin Shield
+    if (pin !== process.env.CHIEF_COMMANDER_PIN) {
+        return res.status(403).json({ error: "Unauthorized: Invalid Chief Commander PIN." });
+    }
+
+    try {
+        // 2. Initiate the Real Transfer
+        const response = await axios.post('https://api.paystack.co/transfer', {
+            source: "balance",
+            amount: amountInNaira * 100, // Paystack works in kobo (N1 = 100 kobo)
+            recipient: recipientCode,    // The RCP_ code you generated
+            reason: reason || "Project Dioscuri - Global Relief Seed",
+            reference: `dioscuri_${Date.now()}` // Unique ID to prevent double-spending
+        }, {
+            headers: { 
+                Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        // 3. Log the success in your Playground
+        console.log(`✅ Success: Payout of ₦${amountInNaira} sent to ${recipientCode}`);
+        res.json({ 
+            status: "Success", 
+            message: "Target Hit: Smile shared!", 
+            data: response.data.data 
+        });
+
+    } catch (error) {
+        const errorMsg = error.response?.data?.message || error.message;
+        console.error(`❌ Mission Failed: ${errorMsg}`);
+        res.status(500).json({ error: "Handshake Failed", detail: errorMsg });
+    }
+});
+
+
 
 
 
