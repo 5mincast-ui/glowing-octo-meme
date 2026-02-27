@@ -462,3 +462,11 @@ app.get('/health', (req, res) => {
     });
 });
 
+
+
+
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Commander, engine running on port ${PORT}`);
+});
