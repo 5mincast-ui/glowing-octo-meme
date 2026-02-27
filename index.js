@@ -147,6 +147,43 @@ app.get('/trigger-test-smile', async (req, res) => {
     }
 });
 
+// The Commander's "Smile" Pulse Logic
+app.post('/authorize-mission', async (req, res) => {
+    const { pin, mission_id } = req.body;
+    
+    // Only the Chief Commander's PIN works
+    if (pin === process.env.CHIEF_COMMANDER_PIN) {
+        await executeDirectPayout(mission_id);
+        // This triggers the "Green Light" on your dashboard
+        res.emit('mission_success', { message: "Smile Shared!" });
+    }
+});
+
+
+const express = require('express');
+const { Pool } = require('pg');
+const app = express();
+app.use(express.json());
+
+// 1. Database Pipe
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+// 2. The "Pre-Flight" Check
+app.get('/', async (req, res) => {
+  try {
+    const dbTest = await pool.query('SELECT NOW()');
+    res.send("🚀 High-Notch Playground is LIVE! Database connected at: " + dbTest.rows[0].now);
+  } catch (err) {
+    res.status(500).send("❌ Engine Error: Database connection failed.");
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Commander Center active on port ${PORT}`));
+
 
 
 
