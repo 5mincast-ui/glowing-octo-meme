@@ -62,6 +62,30 @@ app.post('/transfer', async (req, res) => {
         res.status(500).json({ status: "Error", message: "Transfer Blocked" });
     }
 });
+// --- MISSION LOGIC: CREATE RECIPIENT ---
+app.post('/create-recipient', async (req, res) => {
+    const { name, account_number, bank_code } = req.body;
+
+    try {
+        const recipient = await paystack.recipient.create({
+            type: "nuban",
+            name: name,
+            account_number: account_number,
+            bank_code: bank_code, // e.g., "058" for GTBank
+            currency: "NGN"
+        });
+
+        res.json({
+            status: "Success",
+            recipient_code: recipient.data.recipient_code,
+            message: "Recipient added to the Vault."
+        });
+    } catch (error) {
+        console.error("Recipient Creation Failed:", error);
+        res.status(500).json({ status: "Error", message: "Recipient Blocked" });
+    }
+});
+
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: "Commander, we are Online", database: "Connected" });
