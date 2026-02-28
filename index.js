@@ -40,6 +40,28 @@ app.post('/fund-vault', async (req, res) => {
         res.status(500).json({ status: "Error", message: "Vault Access Denied" });
     }
 });
+// --- MISSION LOGIC: REAL TRANSFER ---
+app.post('/transfer', async (req, res) => {
+    const { amount, recipient_code, reason } = req.body;
+
+    try {
+        const transfer = await paystack.transfer.create({
+            source: "balance", 
+            amount: amount * 100, 
+            recipient: recipient_code,
+            reason: reason || "High-Notch Vault Transfer"
+        });
+
+        res.json({
+            status: "Success",
+            transfer_code: transfer.data.transfer_code,
+            message: "Funds are in transit, Commander."
+        });
+    } catch (error) {
+        console.error("Transfer Mission Failed:", error);
+        res.status(500).json({ status: "Error", message: "Transfer Blocked" });
+    }
+});
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: "Commander, we are Online", database: "Connected" });
@@ -49,54 +71,5 @@ app.get('/health', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Mission Control live on port ${PORT}`);
-});
-
-
-// --- MISSION LOGIC: FUND VAULT ---
-app.post('/fund-vault', async (req, res) => {
-    const { amount, email } = req.body;
-
-    try {
-        // Initialize Paystack Transaction
-        const transaction = await paystack.transaction.initialize({
-            amount: amount * 100, // Converts Naira to Kobo
-            email: email,
-            callback_url: "https://glowing-octo-meme-production.up.railway.app/health" 
-        });
-
-        // Send the payment link back to the user
-        res.json({
-            status: "Success",
-            message: "Redirecting to Secure Vault",
-            authorization_url: transaction.data.authorization_url
-        });
-    } catch (error) {
-        console.error("Vault Funding Error:", error);
-        res.status(500).json({ status: "Error", message: "Vault Access Denied" });
-    }
-});
-
-// --- MISSION LOGIC: FUND VAULT ---
-app.post('/fund-vault', async (req, res) => {
-    const { amount, email } = req.body;
-
-    try {
-        // Initialize Paystack Transaction
-        const transaction = await paystack.transaction.initialize({
-            amount: amount * 100, // Converts Naira to Kobo
-            email: email,
-            callback_url: "https://glowing-octo-meme-production.up.railway.app/health" 
-        });
-
-        // Send the payment link back to the user
-        res.json({
-            status: "Success",
-            message: "Redirecting to Secure Vault",
-            authorization_url: transaction.data.authorization_url
-        });
-    } catch (error) {
-        console.error("Vault Funding Error:", error);
-        res.status(500).json({ status: "Error", message: "Vault Access Denied" });
-    }
 });
 
