@@ -65,26 +65,26 @@ app.post('/transfer', async (req, res) => {
 // --- MISSION LOGIC: CREATE RECIPIENT ---
 app.post('/create-recipient', async (req, res) => {
     const { name, account_number, bank_code } = req.body;
-
     try {
         const recipient = await paystack.recipient.create({
-            type: "nuban",
+            type: "nuban", // Explicitly define for Nigeria
             name: name,
             account_number: account_number,
-            bank_code: bank_code, // e.g., "058" for GTBank
+            bank_code: bank_code,
             currency: "NGN"
         });
-
-        res.json({
-            status: "Success",
-            recipient_code: recipient.data.recipient_code,
-            message: "Recipient added to the Vault."
-        });
+        res.json({ status: "Success", data: recipient.data });
     } catch (error) {
-        console.error("Recipient Creation Failed:", error);
-        res.status(500).json({ status: "Error", message: "Recipient Blocked" });
+        // This will now show the EXACT reason in your Railway logs
+        console.error("Paystack Error Detail:", error.response ? error.response.data : error.message);
+        res.status(500).json({ 
+            status: "Error", 
+            message: "Vault Rejected Data",
+            detail: error.message 
+        });
     }
 });
+
 
 
 app.get('/health', (req, res) => {
