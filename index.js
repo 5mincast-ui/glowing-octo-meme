@@ -64,18 +64,25 @@ app.post('/transfer', async (req, res) => {
 });
 // --- MISSION LOGIC: CREATE RECIPIENT ---
 app.post('/create-recipient', async (req, res) => {
+// --- MISSION LOGIC: CREATE RECIPIENT ---
+app.post('/create-recipient', async (req, res) => {
     const { name, account_number, bank_code } = req.body;
     try {
-        const recipient = await paystack.transferRecipient.create({
-            type: "nuban", // Explicitly define for Nigeria
+        // Using the direct library path
+        const response = await paystack.transferRecipient.create({
+            type: "nuban",
             name: name,
             account_number: account_number,
             bank_code: bank_code,
             currency: "NGN"
         });
-        res.json({ status: "Success", data: recipient.data });
+        
+        res.json({ 
+            status: "Success", 
+            recipient_code: response.data.recipient_code,
+            data: response.data 
+        });
     } catch (error) {
-        // This will now show the EXACT reason in your Railway logs
         console.error("Paystack Error Detail:", error.response ? error.response.data : error.message);
         res.status(500).json({ 
             status: "Error", 
