@@ -62,13 +62,11 @@ app.post('/transfer', async (req, res) => {
         res.status(500).json({ status: "Error", message: "Transfer Blocked" });
     }
 });
-// --- MISSION LOGIC: CREATE RECIPIENT ---
-app.post('/create-recipient', async (req, res) => {
+
 // --- MISSION LOGIC: CREATE RECIPIENT ---
 app.post('/create-recipient', async (req, res) => {
     const { name, account_number, bank_code } = req.body;
     try {
-        // Using the direct library path
         const response = await paystack.transferRecipient.create({
             type: "nuban",
             name: name,
@@ -76,7 +74,6 @@ app.post('/create-recipient', async (req, res) => {
             bank_code: bank_code,
             currency: "NGN"
         });
-        
         res.json({ 
             status: "Success", 
             recipient_code: response.data.recipient_code,
@@ -84,14 +81,9 @@ app.post('/create-recipient', async (req, res) => {
         });
     } catch (error) {
         console.error("Paystack Error Detail:", error.response ? error.response.data : error.message);
-        res.status(500).json({ 
-            status: "Error", 
-            message: "Vault Rejected Data",
-            detail: error.message 
-        });
+        res.status(500).json({ status: "Error", detail: error.message });
     }
 });
-
 
 
 app.get('/health', (req, res) => {
