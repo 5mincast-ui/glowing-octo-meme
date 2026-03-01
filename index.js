@@ -66,7 +66,7 @@ app.post('/transfer', async (req, res) => {
 app.post('/create-recipient', async (req, res) => {
     const { name, account_number, bank_code } = req.body;
     try {
-        const recipient = await paystack.recipient.create({
+        const recipient = await paystack.transferRecipient.create({
             type: "nuban", // Explicitly define for Nigeria
             name: name,
             account_number: account_number,
