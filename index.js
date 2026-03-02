@@ -67,7 +67,8 @@ app.post('/transfer', async (req, res) => {
 app.post('/create-recipient', async (req, res) => {
     const { name, account_number, bank_code } = req.body;
     try {
-        const response = await paystack.transferRecipient.create({
+        const response = await paystack.transfer_recipient.create({
+
             type: "nuban",
             name: name,
             account_number: account_number,
