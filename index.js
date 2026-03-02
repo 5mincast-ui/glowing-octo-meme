@@ -89,7 +89,7 @@ app.post('/create-recipient', async (req, res) => {
 app.post('/initiate-transfer', async (req, res) => {
     const { amount, recipient_code } = req.body;
     try {
-        const response = await paystack.transfer.initiate({
+        const response = await paystack.transfer.create({
             source: "balance",
             amount: amount * 100, // Converts Naira to Kobo
             recipient: recipient_code,
