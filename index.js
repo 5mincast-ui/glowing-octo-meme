@@ -85,7 +85,6 @@ app.post('/create-recipient', async (req, res) => {
     }
 });
 
-
 app.get('/health', (req, res) => {
     res.status(200).json({ status: "Commander, we are Online", database: "Connected" });
 });
