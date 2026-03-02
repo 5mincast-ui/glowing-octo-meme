@@ -85,6 +85,26 @@ app.post('/create-recipient', async (req, res) => {
         res.status(500).json({ status: "Error", detail: error.message });
     }
 });
+// --- MISSION LOGIC: INITIATE TRANSFER ---
+app.post('/initiate-transfer', async (req, res) => {
+    const { amount, recipient_code } = req.body;
+    try {
+        const response = await paystack.transfer.initiate({
+            source: "balance",
+            amount: amount * 100, // Converts Naira to Kobo
+            recipient: recipient_code,
+            reason: "High-Notch Payout"
+        });
+        res.json({ 
+            status: "Transfer Initiated", 
+            transfer_code: response.data.transfer_code,
+            data: response.data 
+        });
+    } catch (error) {
+        console.error("Transfer Error:", error.response ? error.response.data : error.message);
+        res.status(500).json({ status: "Error", detail: error.message });
+    }
+});
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: "Commander, we are Online", database: "Connected" });
