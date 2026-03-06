@@ -109,6 +109,11 @@ app.post('/initiate-transfer', async (req, res) => {
 app.get('/health', (req, res) => {
     res.status(200).json({ status: "Commander, we are Online", database: "Connected" });
 });
+// Add this temporary route to your code and visit it in your browser
+app.get('/my-ip', async (req, res) => {
+    const response = await axios.get('https://api.ipify.org?format=json');
+    res.send(response.data);
+});
 
 // 5. START THE MISSION
 const PORT = process.env.PORT || 3000;
