@@ -197,7 +197,6 @@ app.post('/api/payout', async (req, res) => {
     }
 });
 
-
 // 5. START THE MISSION
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
