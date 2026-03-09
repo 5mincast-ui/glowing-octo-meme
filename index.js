@@ -1,3 +1,4 @@
+require('dotenv').config(); 
 // 1. INITIALIZE THE ENGINE
 const express = require('express');
 const app = express();
@@ -12,11 +13,54 @@ const pool = new Pool({
 
 // 3. ATTACH THE TOOLS (Paystack)
 const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
+const axios = require('axios');
+
 
 // 4. THE MISSION LOGIC (Your Routes)
 app.get('/', async (req, res) => {
     res.send("🚀 High-Notch Playground is LIVE!");
 });
+// --- MONNIFY AUTHENTICATION ---
+const getMonnifyToken = async () => {
+    const authHeader = Buffer.from(`${process.env.MONNIFY_API_KEY}:${process.env.MONNIFY_SECRET_KEY}`).toString('base64');
+    
+    try {
+        const response = await axios.post('https://api.monnify.com/api/v1/auth/login', {}, {
+            headers: { 'Authorization': `Basic ${authHeader}` }
+        });
+        return response.data.responseBody.accessToken;
+    } catch (error) {
+        console.error("Monnify Auth Error:", error.response?.data || error.message);
+    }
+};
+
+// --- MONNIFY DISBURSEMENT (PAYOUT) ---
+app.post('/disburse-funds', async (req, res) => {
+    try {
+        const token = await getMonnifyToken();
+        const { amount, accountNumber, bankCode, reference } = req.body;
+
+        const payoutData = {
+            "amount": amount,
+            "reference": reference || `DLX-${Date.now()}`,
+            "narration": "DLX Designs Vendor Settlement",
+            "destinationBankCode": bankCode,
+            "destinationAccountNumber": accountNumber,
+            "currency": "NGN",
+            "sourceAccountNumber": "6623723648" // Your Moniepoint Account
+        };
+
+        const result = await axios.post('https://api.monnify.com/api/v1/disbursements/single', payoutData, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        res.status(200).json(result.data);
+    } catch (err) {
+        console.error("Payout Failed:", err.response?.data || err.message);
+        res.status(500).json(err.response?.data || { error: "Transaction failed" });
+    }
+});
+
 // --- MISSION LOGIC: FUND VAULT ---
 app.post('/fund-vault', async (req, res) => {
     const { amount, email } = req.body;
@@ -114,6 +158,45 @@ app.get('/my-ip', async (req, res) => {
     const response = await axios.get('https://api.ipify.org?format=json');
     res.send(response.data);
 });
+// --- MONNIFY AUTHENTICATION ---
+const getMonnifyToken = async () => {
+    const authHeader = Buffer.from(`${process.env.MONNIFY_API_KEY}:${process.env.MONNIFY_SECRET_KEY}`).toString('base64');
+    
+    try {
+        const response = await axios.post('https://api.monnify.com/api/v1/auth/login', {}, {
+            headers: { 'Authorization': `Basic ${authHeader}` }
+        });
+        return response.data.responseBody.accessToken;
+    } catch (error) {
+        console.error("Auth Error:", error.response.data);
+    }
+};
+
+// --- INITIATE PAYOUT ---
+app.post('/api/payout', async (req, res) => {
+    const token = await getMonnifyToken();
+    const { amount, accountNumber, bankCode, reference } = req.body;
+
+    const payoutData = {
+        "amount": amount,
+        "reference": reference,
+        "narration": "Payment for DLX Designs Services",
+        "destinationBankCode": bankCode,
+        "destinationAccountNumber": accountNumber,
+        "currency": "NGN",
+        "sourceAccountNumber": "6623723648" // Your Moniepoint Biz Account
+    };
+
+    try {
+        const result = await axios.post('https://api.monnify.com/api/v1/disbursements/single', payoutData, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        res.status(200).json(result.data);
+    } catch (err) {
+        res.status(500).json(err.response.data);
+    }
+});
+
 
 // 5. START THE MISSION
 const PORT = process.env.PORT || 3000;
