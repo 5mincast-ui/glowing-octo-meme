@@ -19,19 +19,6 @@ const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
 app.get('/', async (req, res) => {
     res.send("🚀 High-Notch Playground is LIVE!");
 });
-// --- MONNIFY AUTHENTICATION ---
-const getMonnifyToken = async () => {
-    const authHeader = Buffer.from(`${process.env.MONNIFY_API_KEY}:${process.env.MONNIFY_SECRET_KEY}`).toString('base64');
-    
-    try {
-        const response = await axios.post('https://api.monnify.com/api/v1/auth/login', {}, {
-            headers: { 'Authorization': `Basic ${authHeader}` }
-        });
-        return response.data.responseBody.accessToken;
-    } catch (error) {
-        console.error("Monnify Auth Error:", error.response?.data || error.message);
-    }
-};
 
 // --- MONNIFY DISBURSEMENT (PAYOUT) ---
 app.post('/disburse-funds', async (req, res) => {
