@@ -14,8 +14,6 @@ const pool = new Pool({
 
 // 3. ATTACH THE TOOLS (Paystack)
 const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
-const axios = require('axios');
-
 
 // 4. THE MISSION LOGIC (Your Routes)
 app.get('/', async (req, res) => {
