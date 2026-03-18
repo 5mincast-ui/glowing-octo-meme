@@ -1,3 +1,8 @@
+const express = require('express');
+const axios = require('axios');
+const app = express();
+app.use(express.json());
+
 // --- 3. ATTACH THE TOOLS (Paystack) ---
 const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
 
@@ -31,14 +36,14 @@ app.get('/', async (req, res) => {
       </body>
     </html>
   `);
-}); // <--- THIS WAS LIKELY MISSING
+});
 
 // --- MONNIFY AUTHENTICATION ---
 const getMonnifyToken = async () => {
-  const authHeader = Buffer.from(`${process.env.MONNIFY_API_KEY}:${process.env.MONNIFY_SECRET_KEY}`).toString('base64');
+  const authHeader = Buffer.from(\`\${process.env.MONNIFY_API_KEY}:\${process.env.MONNIFY_SECRET_KEY}\`).toString('base64');
   try {
     const response = await axios.post('https://api.monnify.com/api/v1/auth/login', {}, {
-      headers: { 'Authorization': `Basic ${authHeader}` }
+      headers: { 'Authorization': \`Basic \${authHeader}\` }
     });
     return response.data.responseBody.accessToken;
   } catch (error) {
@@ -62,7 +67,7 @@ app.post('/api/payout', async (req, res) => {
         currency: "NGN",
         sourceAccountNumber: "6623723314"
       }, 
-      { headers: { 'Authorization': `Bearer ${token}` } }
+      { headers: { 'Authorization': \`Bearer \${token}\` } }
     );
     res.status(200).json(result.data);
   } catch (err) {
