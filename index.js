@@ -46,8 +46,7 @@ app.get('/', async (req, res) => {
     </body>
   </html>
 `);
-
-
+    });
 // --- MONNIFY DISBURSEMENT (PAYOUT) ---
 app.post('/disburse-funds', async (req, res) => {
     try {
