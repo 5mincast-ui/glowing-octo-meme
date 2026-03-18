@@ -1,21 +1,22 @@
-const express = require('express');
-const axios = require('axios');
+const express = require('express'); // Required to start the server
+const axios = require('axios');     // Required to talk to Monnify
 const app = express();
-app.use(express.json());
+app.use(express.json());            // Required to read the button data
 
+// --- 1. THE MISSION LOGIC (Your Routes) ---
 app.get('/', async (req, res) => {
   res.send(`
     <html>
-      <body style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; background:#f0f0f0;">
-        <h1>🚀 High-Notch Playground is LIVE!</h1>
-        <button onclick="testPayout()" style="padding:20px; font-size:20px; background:green; color:white; border:none; border-radius:10px; cursor:pointer;">
+      <body style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; background:#f4f4f4;">
+        <h1 style="color:#333;">🚀 High-Notch Playground is LIVE!</h1>
+        <button onclick="testPayout()" style="padding:20px; font-size:20px; background:green; color:white; border:none; border-radius:10px; cursor:pointer; box-shadow: 0 4px 15px rgba(0,128,0,0.3);">
           TEST 100 NGN PAYOUT
         </button>
-        <div id="result" style="margin-top:20px; font-weight:bold;"></div>
+        <div id="result" style="margin-top:20px; font-weight:bold; color:#555;"></div>
         <script>
           async function testPayout() {
             const resDiv = document.getElementById('result');
-            resDiv.innerText = 'Sending...';
+            resDiv.innerText = 'Processing Payout...';
             try {
               const response = await fetch('/api/payout', {
                 method: 'POST',
@@ -23,8 +24,7 @@ app.get('/', async (req, res) => {
                 body: JSON.stringify({ 
                   amount: 100, 
                   accountNumber: "0123456789", 
-                  bankCode: "058",
-                  reference: "TEST-" + Date.now() 
+                  bankCode: "058" 
                 })
               });
               const data = await response.json();
@@ -39,33 +39,36 @@ app.get('/', async (req, res) => {
   `);
 });
 
+// --- 2. MONNIFY AUTHENTICATION ---
 const getMonnifyToken = async () => {
-  const authHeader = Buffer.from(\`\${process.env.MONNIFY_API_KEY}:\${process.env.MONNIFY_SECRET_KEY}\`).toString('base64');
+  const authHeader = Buffer.from(`${process.env.MONNIFY_API_KEY}:${process.env.MONNIFY_SECRET_KEY}`).toString('base64');
   try {
     const response = await axios.post('https://api.monnify.com/api/v1/auth/login', {}, {
-      headers: { 'Authorization': \`Basic \${authHeader}\` }
+      headers: { 'Authorization': `Basic ${authHeader}` }
     });
     return response.data.responseBody.accessToken;
   } catch (error) {
+    console.error('Monnify Auth Error:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
 
+// --- 3. INITIATE PAYOUT ---
 app.post('/api/payout', async (req, res) => {
   try {
     const token = await getMonnifyToken();
-    const { amount, accountNumber, bankCode, reference } = req.body;
+    const { amount, accountNumber, bankCode } = req.body;
     const result = await axios.post('https://api.monnify.com/api/v1/disbursements/single', 
       {
         amount,
-        reference: reference || 'REF-' + Date.now(),
+        reference: 'REF-' + Date.now(), // Generates a unique ID so Monnify doesn't reject it
         narration: "Test Payout",
         destinationBankCode: bankCode,
         destinationAccountNumber: accountNumber,
         currency: "NGN",
-        sourceAccountNumber: "6623723314"
+        sourceAccountNumber: "6623723314" // Ensure this matches your Monnify settings
       }, 
-      { headers: { 'Authorization': \`Bearer \${token}\` } }
+      { headers: { 'Authorization': `Bearer ${token}` } }
     );
     res.status(200).json(result.data);
   } catch (err) {
@@ -73,7 +76,8 @@ app.post('/api/payout', async (req, res) => {
   }
 });
 
+// --- 4. START THE MISSION ---
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log('🚀 Engine ONLINE');
+  console.log('🚀 Oni Omolabake Engine is ONLINE');
 });
