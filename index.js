@@ -3,10 +3,8 @@ const axios = require('axios');
 const app = express();
 app.use(express.json());
 
-// --- 3. ATTACH THE TOOLS (Paystack) ---
 const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
 
-// --- 4. THE MISSION LOGIC (Your Routes) ---
 app.get('/', async (req, res) => {
   res.send(`
     <html>
@@ -38,12 +36,11 @@ app.get('/', async (req, res) => {
   `);
 });
 
-// --- MONNIFY AUTHENTICATION ---
 const getMonnifyToken = async () => {
-  const authHeader = Buffer.from(\`\${process.env.MONNIFY_API_KEY}:\${process.env.MONNIFY_SECRET_KEY}\`).toString('base64');
+  const authHeader = Buffer.from(`${process.env.MONNIFY_API_KEY}:${process.env.MONNIFY_SECRET_KEY}`).toString('base64');
   try {
     const response = await axios.post('https://api.monnify.com/api/v1/auth/login', {}, {
-      headers: { 'Authorization': \`Basic \${authHeader}\` }
+      headers: { 'Authorization': `Basic ${authHeader}` }
     });
     return response.data.responseBody.accessToken;
   } catch (error) {
@@ -52,7 +49,6 @@ const getMonnifyToken = async () => {
   }
 };
 
-// --- INITIATE PAYOUT ---
 app.post('/api/payout', async (req, res) => {
   try {
     const token = await getMonnifyToken();
@@ -67,7 +63,7 @@ app.post('/api/payout', async (req, res) => {
         currency: "NGN",
         sourceAccountNumber: "6623723314"
       }, 
-      { headers: { 'Authorization': \`Bearer \${token}\` } }
+      { headers: { 'Authorization': `Bearer ${token}` } }
     );
     res.status(200).json(result.data);
   } catch (err) {
@@ -75,7 +71,6 @@ app.post('/api/payout', async (req, res) => {
   }
 });
 
-// --- 5. START THE MISSION ---
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
   console.log('🚀 Oni Omolabake Engine is ONLINE');
