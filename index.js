@@ -3,8 +3,12 @@ const axios = require('axios');
 const app = express();
 app.use(express.json());
 
-const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
+// --- 1. RAILWAY HEALTHCHECK (Fixes the "Failed" error) ---
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
+// --- 2. THE MISSION LOGIC (Your Routes) ---
 app.get('/', async (req, res) => {
   res.send(`
     <html>
@@ -36,6 +40,7 @@ app.get('/', async (req, res) => {
   `);
 });
 
+// --- 3. MONNIFY AUTHENTICATION ---
 const getMonnifyToken = async () => {
   const authHeader = Buffer.from(`${process.env.MONNIFY_API_KEY}:${process.env.MONNIFY_SECRET_KEY}`).toString('base64');
   try {
@@ -49,6 +54,7 @@ const getMonnifyToken = async () => {
   }
 };
 
+// --- 4. INITIATE PAYOUT ---
 app.post('/api/payout', async (req, res) => {
   try {
     const token = await getMonnifyToken();
@@ -71,6 +77,7 @@ app.post('/api/payout', async (req, res) => {
   }
 });
 
+// --- 5. START THE MISSION ---
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
   console.log('🚀 Oni Omolabake Engine is ONLINE');
