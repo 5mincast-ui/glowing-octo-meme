@@ -17,8 +17,36 @@ const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
 
 // 4. THE MISSION LOGIC (Your Routes)
 app.get('/', async (req, res) => {
-    res.send("🚀 High-Notch Playground is LIVE!");
-});
+    res.send(`
+  <html>
+    <body style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif;">
+      <h1>🚀 High-Notch Playground is LIVE!</h1>
+      <button onclick="testPayout()" style="padding:20px; font-size:20px; background:green; color:white; border:none; border-radius:10px; cursor:pointer;">
+        TEST 100 NGN PAYOUT
+      </button>
+      <div id="result" style="margin-top:20px; font-weight:bold;"></div>
+
+      <script>
+        async function testPayout() {
+          const resDiv = document.getElementById('result');
+          resDiv.innerText = 'Sending...';
+          try {
+            const response = await fetch('/api/payout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ amount: 100, accountNumber: "0123456789", bankCode: "058" })
+            });
+            const data = await response.json();
+            resDiv.innerText = 'Result: ' + JSON.stringify(data);
+          } catch (err) {
+            resDiv.innerText = 'Error: ' + err.message;
+          }
+        }
+      </script>
+    </body>
+  </html>
+`);
+
 
 // --- MONNIFY DISBURSEMENT (PAYOUT) ---
 app.post('/disburse-funds', async (req, res) => {
