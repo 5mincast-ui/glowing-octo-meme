@@ -3,12 +3,10 @@ const axios = require('axios');
 const app = express();
 app.use(express.json());
 
-// 1. RAILWAY HEALTHCHECK
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
-});
+// 1. HEALTHCHECK
+app.get('/health', (req, res) => res.status(200).send('OK'));
 
-// 2. THE MISSION LOGIC (Your Frontend)
+// 2. FRONTEND
 app.get('/', (req, res) => {
   res.send(`
     <html>
@@ -25,12 +23,7 @@ app.get('/', (req, res) => {
             try {
               const response = await fetch('/api/payout', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                  amount: 100, 
-                  accountNumber: "6623723648", 
-                  bankCode: "058" 
-                })
+                headers: { 'Content-Type': 'application/json' }
               });
               const data = await response.json();
               resDiv.innerText = 'Result: ' + JSON.stringify(data);
@@ -44,7 +37,7 @@ app.get('/', (req, res) => {
   `);
 });
 
-// 3. MONNIFY AUTHENTICATION
+// 3. MONNIFY AUTH
 const getMonnifyToken = async () => {
   const authHeader = Buffer.from(process.env.MONNIFY_API_KEY + ':' + process.env.MONNIFY_SECRET_KEY).toString('base64');
   try {
@@ -57,7 +50,7 @@ const getMonnifyToken = async () => {
   }
 };
 
-// 4. PAYOUT ROUTE
+// 4. PAYOUT (Hardcoded values to prevent blank errors)
 app.post('/api/payout', async (req, res) => {
   try {
     const token = await getMonnifyToken();
@@ -79,8 +72,5 @@ app.post('/api/payout', async (req, res) => {
   }
 });
 
-// 5. START SERVER
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log('🚀 Engine Online');
-});
+app.listen(PORT, '0.0.0.0', () => console.log('🚀 Engine Online'));
