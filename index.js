@@ -3,13 +3,15 @@ const axios = require('axios');
 const app = express();
 app.use(express.json());
 
+// 1. HEALTHCHECK
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
+// 2. FRONTEND
 app.get('/', (req, res) => {
   res.send(`
     <html>
       <body style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; text-align:center;">
-        <h1>🚀 High-Notch Playground is LIVE (Sandbox Mode)</h1>
+        <h1>🚀 High-Notch Playground (Sandbox)</h1>
         <button onclick="testPayout()" style="padding:20px; font-size:20px; background:green; color:white; border:none; border-radius:10px; cursor:pointer;">
           TEST 100 NGN PAYOUT
         </button>
@@ -30,6 +32,7 @@ app.get('/', (req, res) => {
   `);
 });
 
+// 3. MONNIFY SANDBOX AUTH
 const getMonnifyToken = async () => {
   const authHeader = Buffer.from(process.env.MONNIFY_API_KEY + ':' + process.env.MONNIFY_SECRET_KEY).toString('base64');
   try {
@@ -40,6 +43,7 @@ const getMonnifyToken = async () => {
   } catch (error) { throw error; }
 };
 
+// 4. PAYOUT (Sandbox Configuration)
 app.post('/api/payout', async (req, res) => {
   try {
     const token = await getMonnifyToken();
@@ -47,12 +51,12 @@ app.post('/api/payout', async (req, res) => {
       {
         amount: 100,
         reference: 'REF-' + Date.now(),
-        narration: "CEO Sandbox Test",
-        destinationBankCode: "50634",
+        narration: "CEO Sandbox Payout",
+        destinationBankCode: "50634", // Moniepoint
         destinationAccountNumber: "6623723648",
         currency: "NGN",
-        sourceAccountNumber: "6986178814",
-        contractCode: "8807193982"
+        sourceAccountNumber: "6986178814", // From your Profile
+        contractCode: "8807193982" // From your Settings
       }, 
       { headers: { 'Authorization': 'Bearer ' + token } }
     );
