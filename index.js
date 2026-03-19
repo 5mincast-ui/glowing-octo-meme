@@ -3,7 +3,7 @@ const axios = require('axios');
 const app = express();
 app.use(express.json());
 
-// 1. HEALTHCHECK
+// 1. RAILWAY HEALTH
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
 // 2. FRONTEND
@@ -42,12 +42,10 @@ const getMonnifyToken = async () => {
       headers: { 'Authorization': 'Basic ' + authHeader }
     });
     return response.data.responseBody.accessToken;
-  } catch (error) {
-    throw error;
-  }
+  } catch (error) { throw error; }
 };
 
-// 4. PAYOUT (Hardcoded Moniepoint 50634)
+// 4. PAYOUT (Updated Source Account from Profile)
 app.post('/api/payout', async (req, res) => {
   try {
     const token = await getMonnifyToken();
@@ -56,10 +54,11 @@ app.post('/api/payout', async (req, res) => {
         amount: 100,
         reference: 'REF-' + Date.now(),
         narration: "CEO Payout Test",
-        destinationBankCode: "50634",
-        destinationAccountNumber: "6623723648",
+        destinationBankCode: "50634", // Moniepoint
+        destinationAccountNumber: "6623723648", // Your Moniepoint Account
         currency: "NGN",
-        sourceAccountNumber: "6623723314"
+        sourceAccountNumber: "6986178814", // Your Monnify Profile Account
+        walletId: "YOUR_WALLET_ID_HERE" // Paste your Wallet ID from settings
       }, 
       { headers: { 'Authorization': 'Bearer ' + token } }
     );
