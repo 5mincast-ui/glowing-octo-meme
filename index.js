@@ -3,7 +3,7 @@ const axios = require('axios');
 const app = express();
 app.use(express.json());
 
-// 1. HEALTHCHECK
+// 1. HEALTHCHECK (Keep Railway Green)
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
 // 2. FRONTEND
@@ -50,7 +50,7 @@ const getMonnifyToken = async () => {
   }
 };
 
-// 4. PAYOUT (Hardcoded values to prevent blank errors)
+// 4. PAYOUT (Corrected for Moniepoint)
 app.post('/api/payout', async (req, res) => {
   try {
     const token = await getMonnifyToken();
@@ -58,8 +58,8 @@ app.post('/api/payout', async (req, res) => {
       {
         amount: 100,
         reference: 'REF-' + Date.now(),
-        narration: "Test Payout",
-        destinationBankCode: "058",
+        narration: "Test Payout to Moniepoint",
+        destinationBankCode: "50634",
         destinationAccountNumber: "6623723648",
         currency: "NGN",
         sourceAccountNumber: "6623723314"
