@@ -21,16 +21,16 @@ app.get('/', (req, res) => {
             const resDiv = document.getElementById('result');
             resDiv.innerText = 'Sending...';
             try {
-              const response = await fetch('/api/payout', { method: 'POST' });
-              const data = await response.json();
-              resDiv.innerText = 'Result: ' + JSON.stringify(data);
-            } catch (err) { resDiv.innerText = 'Error: ' + err.message; }
-          }
-        </script>
-      </body>
-    </html>
-  `);
-});
+                    // PASTE THIS STARTING AT LINE 24
+      const response = await fetch('/release-smile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pin: "YOUR_SECRET_PIN", // Replace this with your actual PIN
+          amountInNaira: 100,
+          destinationAccount: "6623723648"
+        })
+      });
 
 // 3. MONNIFY SANDBOX AUTH
 const getMonnifyToken = async () => {
