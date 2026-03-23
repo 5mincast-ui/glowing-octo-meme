@@ -42,27 +42,41 @@ const getMonnifyToken = async () => {
     return response.data.responseBody.accessToken;
   } catch (error) { throw error; }
 };
-// 4. PAYOUT (Standard Monnify Field Names - Precision Fixed)
-app.post('/api/payout', async (req, res) => {
-  try {
-    const token = await getMonnifyToken();
-    const result = await axios.post('https://sandbox.monnify.com/api/v1/disbursements/single', 
-      {
-        amount: 100,
-        reference: 'REF-' + Date.now(),
-        narration: "PLP Foundation Street Feed Test",
-        destinationBankCode: "50634", 
-        destinationAccountNumber: "6623723648", 
-        currency: "NGN",
-        sourceAccountNumber: "6986178814", // Verified Wallet
-        walletId: "8807193982" // Verified Contract
-      }, 
-      { headers: { 'Authorization': 'Bearer ' + token } }
-    );
-    res.status(200).json(result.data);
-  } catch (err) {
-    res.status(500).json(err.response ? err.response.data : { error: err.message });
-  }
+// --- THE CHIEF COMMANDER'S GIVING HAND ---
+app.post('/release-smile', async (req, res) => {
+    const { pin, amountInNaira, destinationAccount } = req.body;
+
+    // 1. Security Check: The Admin Shield
+    if (pin !== process.env.CHIEF_COMMANDER_PIN) {
+        return res.status(403).json({ error: "Unauthorized Chief Commander PIN." });
+    }
+
+    try {
+        // 2. TRIGGER MONNIFY ENGINE
+        const token = await getMonnifyToken();
+        const result = await axios.post('https://sandbox.monnify.com/api/v1/disbursements/single', 
+          {
+            amount: amountInNaira,
+            reference: 'PLP-' + Date.now(),
+            narration: "Project Dioscuri - Smile Released",
+            destinationBankCode: "50634", // Moniepoint
+            destinationAccountNumber: destinationAccount,
+            currency: "NGN",
+            sourceAccountNumber: "6986178814", // Your Verified Wallet
+            walletId: "8807193982" // Your Actual Contract Code
+          }, 
+          { headers: { 'Authorization': 'Bearer ' + token } }
+        );
+
+        // 3. LOG TO YOUR LOCAL BANK (Postgres)
+        // Note: This only works if your Postgres DB is Un-Suspended
+        await db.query("UPDATE accounts SET balance = balance - $1 WHERE id = 1", [amountInNaira]);
+
+        res.status(200).json({ status: "Target Hit", message: "Funds Sent & Ledger Updated", data: result.data });
+    } catch (err) {
+        console.error("Mission Failed:", err.response ? err.response.data : err.message);
+        res.status(500).json({ error: "Handshake Failed", detail: err.message });
+    }
 });
 
 const PORT = process.env.PORT || 8080;
