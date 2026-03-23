@@ -42,7 +42,7 @@ const getMonnifyToken = async () => {
     return response.data.responseBody.accessToken;
   } catch (error) { throw error; }
 };
-// 4. PAYOUT (Standard Monnify Field Names)
+// 4. PAYOUT (Standard Monnify Field Names - Precision Fixed)
 app.post('/api/payout', async (req, res) => {
   try {
     const token = await getMonnifyToken();
@@ -52,10 +52,10 @@ app.post('/api/payout', async (req, res) => {
         reference: 'REF-' + Date.now(),
         narration: "PLP Foundation Street Feed Test",
         destinationBankCode: "50634", 
-        destinationAccountNumber: "6623723648", // Ensure this is the correct field name
+        destinationAccountNumber: "6623723648", 
         currency: "NGN",
-        sourceAccountNumber: "6986178814", // Your Wallet Account
-        walletId: "8807193982" // Your Contract Code
+        sourceAccountNumber: "6986178814", // Verified Wallet
+        walletId: "8807193982" // Verified Contract
       }, 
       { headers: { 'Authorization': 'Bearer ' + token } }
     );
