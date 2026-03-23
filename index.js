@@ -5,13 +5,17 @@ const app = express();
 
 app.use(express.json());
 
-// --- DATABASE CONFIG ---
+// --- 1. RAILWAY HEALTHCHECK (Fixes the "Failed" status) ---
+app.get('/health', (req, res) => res.status(200).send('OK'));
+app.get('/', (req, res) => res.status(200).send('Dioscuri Engine Live'));
+
+// --- 2. DATABASE CONFIG ---
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
-// --- MONNIFY AUTH ENGINE ---
+// --- 3. MONNIFY AUTH ENGINE ---
 async function getMonnifyToken() {
   const auth = Buffer.from(`${process.env.MONNIFY_API_KEY}:${process.env.MONNIFY_SECRET_KEY}`).toString('base64');
   const res = await axios.post('https://sandbox.monnify.com/api/v1/auth/login', {}, {
@@ -20,12 +24,12 @@ async function getMonnifyToken() {
   return res.data.responseBody.accessToken;
 }
 
-// --- THE MAIN MISSION: RELEASE SMILE ---
+// --- 4. THE MAIN MISSION: RELEASE SMILE ---
 app.post('/release-smile', async (req, res) => {
   const { amountInNaira, destinationAccountNumber, destinationBankCode } = req.body;
 
   try {
-    // 1. TRIGGER MONNIFY DISBURSEMENT
+    // TRIGGER MONNIFY DISBURSEMENT
     const token = await getMonnifyToken();
     const monnifyResponse = await axios.post(
       'https://sandbox.monnify.com/api/v1/disbursements/single',
@@ -36,12 +40,12 @@ app.post('/release-smile', async (req, res) => {
         destinationBankCode: destinationBankCode,
         destinationAccountNumber: destinationAccountNumber,
         currency: "NGN",
-        sourceAccountNumber: "6986178814" // Your Verified Wallet
+        sourceAccountNumber: "6986178814" 
       },
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    // 2. LOG TO YOUR LOCAL LEDGER (Postgres)
+    // LOG TO YOUR LOCAL LEDGER
     await db.query(
       "UPDATE accounts SET balance = balance - $1 WHERE id = 1", 
       [amountInNaira]
@@ -55,13 +59,13 @@ app.post('/release-smile', async (req, res) => {
 
   } catch (err) {
     console.error("Mission Failed:", err.response ? err.response.data : err.message);
-    res.status(500).json({ 
-      error: "Handshake Failed", 
-      detail: err.message 
-    });
+    res.status(500).json({ error: "Handshake Failed", detail: err.message });
   }
 });
 
-// --- THE ENGINE START ---
+// --- 5. THE ENGINE START ---
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, '0.0.0.0', () => console.log('🚀 Engine Online'));
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('🚀 Engine Online');
+  console.log(`Port: ${PORT}`);
+});
