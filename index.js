@@ -68,16 +68,18 @@ app.post('/release-smile', async (req, res) => {
           { headers: { 'Authorization': 'Bearer ' + token } }
         );
 
-        // 3. LOG TO YOUR LOCAL BANK (Postgres)
-        // Note: This only works if your Postgres DB is Un-Suspended
-        await db.query("UPDATE accounts SET balance = balance - $1 WHERE id = 1", [amountInNaira]);
+           // 3. LOG TO YOUR LOCAL BANK (Postgres)
+    // Note: This only works if your Postgres DB is Un-Suspended
+    await db.query("UPDATE accounts SET balance = balance - $1 WHERE id = 1", [amountInNaira]);
 
-        res.status(200).json({ status: "Target Hit", message: "Funds Sent & Ledger Updated", data: result.data });
-    } catch (err) {
-        console.error("Mission Failed:", err.response ? err.response.data : err.message);
-        res.status(500).json({ error: "Handshake Failed", detail: err.message });
-    }
+    res.status(200).json({ status: "Target Hit", message: "Funds Sent & Ledger Updated" });
+  } catch (err) {
+    console.error("Mission Failed:", err.response ? err.response.data : err.message);
+    res.status(500).json({ error: "Handshake Failed", detail: err.message });
+  }
 });
 
+// --- SERVER STARTUP ---
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => console.log('🚀 Engine Online'));
+ 
