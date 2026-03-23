@@ -42,20 +42,20 @@ const getMonnifyToken = async () => {
     return response.data.responseBody.accessToken;
   } catch (error) { throw error; }
 };
-// 4. PAYOUT (Hardcoded with Moniepoint 50634 and Wallet ID)
+// 4. PAYOUT (Standard Monnify Field Names)
 app.post('/api/payout', async (req, res) => {
   try {
     const token = await getMonnifyToken();
-    const result = await axios.post('https://api.monnify.com/api/v1/disbursements/single', 
+    const result = await axios.post('https://sandbox.monnify.com/api/v1/disbursements/single', 
       {
         amount: 100,
         reference: 'REF-' + Date.now(),
-        narration: "CEO Payout Test - PLP Foundation",
-        destinationBankCode: "50634", // Moniepoint
-        destinationAccountNumber: "6623723648",
+        narration: "PLP Foundation Street Feed Test",
+        destinationBankCode: "50634", 
+        destinationAccountNumber: "6623723648", // Ensure this is the correct field name
         currency: "NGN",
         sourceAccountNumber: "6986178814", // Your Wallet Account
-        walletId: "8807193982" // Your actual Contract Code
+        walletId: "8807193982" // Your Contract Code
       }, 
       { headers: { 'Authorization': 'Bearer ' + token } }
     );
@@ -64,8 +64,6 @@ app.post('/api/payout', async (req, res) => {
     res.status(500).json(err.response ? err.response.data : { error: err.message });
   }
 });
-
-
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => console.log('🚀 Engine Online'));
